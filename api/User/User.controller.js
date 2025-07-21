@@ -18,17 +18,19 @@ const generateToken = (user) => {
 // ===================== SIGNUP ===================== //
 exports.signup = async (req, res) => {
   try {
+    console.log("Received body:", req.body); // Log incoming data
     const {
-      name,
       username,
       phone,
       password,
       confirmPassword,
       businessType,
       location,
+      logoUrl,
+      specialties,
     } = req.body;
 
-    if (!name || !username || !phone || !password || !confirmPassword) {
+    if (!username || !phone || !password || !confirmPassword) {
       return res
         .status(400)
         .json({ message: "All required fields must be filled" });
@@ -50,13 +52,13 @@ exports.signup = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = new User({
-      name,
       username,
       phone,
       password: hashedPassword,
       businessType,
       location,
-      specialties: [],
+      logoUrl,
+      specialties: specialties || [],
       isVerified: false,
     });
 
@@ -69,7 +71,6 @@ exports.signup = async (req, res) => {
       user: {
         id: user._id,
         username: user.username,
-        name: user.name,
         phone: user.phone,
         businessType: user.businessType,
         isVerified: user.isVerified,
@@ -113,7 +114,6 @@ exports.login = async (req, res) => {
       user: {
         id: user._id,
         username: user.username,
-        name: user.name,
         phone: user.phone,
         businessType: user.businessType,
         isVerified: user.isVerified,
@@ -144,7 +144,7 @@ exports.getProfile = async (req, res) => {
 
 exports.updateProfile = async (req, res) => {
   try {
-    const allowedFields = ["name", "logoUrl", "location", "specialties"];
+    const allowedFields = ["logoUrl", "location", "specialties"];
     const updates = {};
 
     allowedFields.forEach((field) => {
